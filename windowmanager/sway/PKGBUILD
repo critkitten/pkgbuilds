@@ -29,7 +29,7 @@ build() {
 	-D tray=disabled \
 	-D man-pages=disabled \
 	-D xwayland=disabled \
-	-D swaybar=false \
+	-D swaybar=true \
 	-D swaynag=false \
 	-D default-wallpaper=false
 	ninja -C build
