@@ -1,0 +1,9 @@
+[Unit]
+Description=Aide Check
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/aide --check
+
+[Install]
+WantedBy=multi-user.target

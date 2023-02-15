@@ -1,0 +1,42 @@
+pkgbase=foot
+pkgdesc='Fast, lightweight, and minimalistic Wayland terminal emulator'
+pkgname=($pkgbase $pkgbase-terminfo)
+pkgver=1.13.1
+pkgrel=2
+url="https://codeberg.org/dnkl/foot"
+arch=(x86_64)
+license=(MIT)
+makedepends=(fcft fontconfig libutf8proc libxkbcommon llvm meson ncurses ninja pixman python sway tllist wayland wayland-protocols)
+source=("$pkgname-$pkgver.tar.gz::$url/archive/$pkgver.tar.gz")
+sha256sums=('604f777fdaccfc1ee2d20376cc5688a819dcd6b7113725880cc973194fd6c737')
+build() {
+	cd "$pkgbase"
+	./pgo/pgo.sh \
+	full-headless-sway \
+	. build \
+	-Ddocs=disabled \
+	-Dime=false \
+	-Dterminfo=disabled \
+	-Dthemes=false \
+	--prefix=/usr \
+	--wrap-mode=nodownload 
+	sed 's/@default_terminfo@/foot-extra/g' foot.info | tic -x -o build -e foot-extra,foot-extra-direct -
+}
+check() {
+	cd "$pkgbase"
+	ninja -C build test
+}
+package_foot() {
+	optdepends=('foot-terminfo: exta non-standard features over terminfo included in ncurses')
+	depends=(fcft fontconfig libfcft.so libutf8proc libxkbcommon ncurses pixman wayland)
+	cd "$pkgbase"
+	DESTDIR="$pkgdir" ninja -C build install
+	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE
+}
+package_foot-terminfo() {
+	pkgdesc="Extra non-standard terminfo files for $pkgbase, a Wayland terminal emulator"
+	depends=(ncurses)
+	cd "$pkgbase"
+	install -Dm0644 -t "$pkgdir/usr/share/terminfo/f/" build/f/foot-extra*
+	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE
+}

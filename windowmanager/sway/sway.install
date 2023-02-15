@@ -1,0 +1,13 @@
+post_install() {
+cat << EOD
+adding your user to the "seat" group, then logging out/in again.
+EOD
+}
+
+post_upgrade() {
+cat << EOD
+Note that using seatd instead of polkit means that a user must be a part of the
+"seat" group: Otherwise, the user will not be able to achieve the appropriate
+privileged actions.
+EOD
+}

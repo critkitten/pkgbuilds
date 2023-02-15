@@ -1,0 +1,47 @@
+pkgname=ffmpeg
+pkgver=5.1.2
+pkgrel=1
+epoch=2
+pkgdesc='Complete solution to record, convert and stream audio and video'
+arch=(x86_64)
+url=https://ffmpeg.org/
+license=(GPL3)
+depends=( fontconfig alsa-lib libdrm libgl libva.so libva-drm.so libva-x11.so libx264.so libxcb)
+makedepends=( fontconfig clang git mesa nasm opencl-headers vulkan-headers )
+optdepends=( intel-media-sdk )
+provides=( libavcodec.so libavdevice.so libavfilter.so libavformat.so libavutil.so libpostproc.so libswresample.so libswscale.so )
+_tag=1326fe9d4c85cca1ee774b072ef4fa337694f2e7
+source=(
+	git+https://git.ffmpeg.org/ffmpeg.git?signed#tag=${_tag}
+)
+b2sums=('SKIP')
+validpgpkeys=(DD1EC9E8DE085C629B3E1846B18E8928B3948D64) # Michael Niedermayer <michael@niedermayer.cc>
+pkgver() {
+	cd ffmpeg
+	git describe --tags | sed 's/^n//'
+}
+build() {
+	cd ffmpeg
+	./configure \
+	--prefix=/usr \
+	--enable-gpl \
+	--disable-debug \
+	--disable-static \
+	--disable-stripping \
+	--disable-network \
+	--enable-lto \
+	--enable-fontconfig \
+	--enable-libdrm \
+	--enable-libfreetype \
+	--enable-libx264 \
+	--disable-opencl \
+	--enable-opengl \
+	--enable-shared \
+	--enable-version3 \
+	--enable-vulkan
+	make
+}
+
+package() {
+	make DESTDIR="${pkgdir}" -C ffmpeg install
+}

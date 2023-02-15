@@ -1,0 +1,43 @@
+pkgname=sway
+pkgver=1.8.1
+pkgrel=5
+pkgdesc='Tiling Wayland compositor and replacement for the i3 window manager'
+arch=(x86_64)
+url='https://swaywm.org/'
+license=(MIT)
+depends=(cairo pango libevdev.so libinput libjson-c.so libudev.so libwayland-server.so libwlroots.so libxcb libxkbcommon.so pcre seatd ttf-font gdk-pixbuf2)
+makedepends=(meson ninja scdoc setconf wayland-protocols)
+source=("https://github.com/swaywm/sway/releases/download/$pkgver/sway-$pkgver.tar.gz"
+        "https://github.com/swaywm/sway/releases/download/$pkgver/sway-$pkgver.tar.gz.sig")
+install=sway.install
+sha256sums=('73f08fd2cf7948e8af900709efe44eae412ae11c5773960e25c9aa09f73bad41'
+            'SKIP')
+validpgpkeys=('34FF9526CFEF0E97A340E2E40FDE7BE0E88F5E48'  # Simon Ser
+              '9DDA3B9FA5D58DD5392C78E652CB6609B22DA89A') # Drew DeVault
+prepare() {
+	cd "$pkgname-$pkgver"
+	# Set the version information to 'Linux' instead of 'makepkg'
+	sed -i "s/branch \\\'@1@\\\'/Linux/g" meson.build
+}
+build() {
+	mkdir -p build
+	arch-meson build "$pkgname-$pkgver" \
+	-D sd-bus-provider=libsystemd \
+	-D werror=true \
+	-D b_ndebug=false \
+	-D gdk-pixbuf=enabled \
+	-D tray=disabled \
+	-D man-pages=disabled \
+	-D xwayland=disabled \
+	-D swaybar=false \
+	-D swaynag=false \
+	-D default-wallpaper=false
+	ninja -C build
+}
+package() {
+	DESTDIR="$pkgdir" ninja -C build install
+	install -Dm644 "$pkgname-$pkgver/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+	for util in autoname-workspaces.py inactive-windows-transparency.py grimshot; do
+	install -Dm755 "$pkgname-$pkgver/contrib/$util" -t "$pkgdir/usr/share/$pkgname/scripts"
+	done
+}

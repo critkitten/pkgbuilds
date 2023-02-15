@@ -1,0 +1,48 @@
+image: freebsd/latest
+packages:
+  - evdev-proto
+  - libepoll-shim
+  - meson
+  - ninja
+  - pkgconf
+  - scdoc
+  - wayland
+  - wayland-protocols
+  - freetype2
+  - fontconfig
+  - harfbuzz
+  - utf8proc
+  - pixman
+  - libxkbcommon
+  - check
+  - hack-font
+  - noto-emoji
+
+sources:
+  - https://git.sr.ht/~dnkl/foot
+
+# triggers:
+#   - action: email
+#     condition: failure
+#     to: <committer>
+
+tasks:
+  - fcft: |
+      cd foot/subprojects
+      git clone https://codeberg.org/dnkl/fcft.git
+      cd ../..
+  - debug: |
+      mkdir -p bld/debug
+      meson --buildtype=debug -Dterminfo=disabled -Dgrapheme-clustering=enabled -Dfcft:grapheme-shaping=enabled -Dfcft:run-shaping=enabled -Dfcft:test-text-shaping=true foot bld/debug
+      ninja -C bld/debug -k0
+      meson test -C bld/debug --print-errorlogs
+      bld/debug/foot --version
+      bld/debug/footclient --version
+
+  - release: |
+      mkdir -p bld/release
+      meson --buildtype=minsize -Db_pgo=generate -Dterminfo=disabled -Dgrapheme-clustering=enabled -Dfcft:grapheme-shaping=enabled -Dfcft:run-shaping=enabled  -Dfcft:test-text-shaping=true foot bld/release
+      ninja -C bld/release -k0
+      meson test -C bld/release --print-errorlogs
+      bld/release/foot --version
+      bld/release/footclient --version

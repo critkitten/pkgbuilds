@@ -1,0 +1,48 @@
+pkgname=alsa-utils
+pkgver=1.2.8
+pkgrel=1
+pkgdesc="Advanced Linux Sound Architecture - Utilities"
+arch=(x86_64)
+url="https://www.alsa-project.org"
+license=(GPL2)
+depends=(glibc pciutils psmisc)
+makedepends=(alsa-lib)
+optdepends=('fftw: for alsabat')
+# we require /var/lib/alsa for state file
+options=(emptydirs)
+source=(https://www.alsa-project.org/files/pub/utils/$pkgname-$pkgver.tar.bz2{,.sig})
+sha512sums=('882e6f67467596ed273bf554fcce87d8ef287806bbdabd6c103de4980981f9e2102fb3800c6e8628ee8e86ffb165c1c92f9370c8145f28a6cb7cca563942330b'
+            'SKIP')
+validpgpkeys=('F04DF50737AC1A884C4B3D718380596DA6E59C91') # ALSA Release Team (Package Signing Key v1) <release@alsa-project.org>
+prepare() {
+	cd $pkgname-$pkgver
+	autoreconf -fiv
+}
+
+build() {
+	cd $pkgname-$pkgver
+	./configure \
+	--prefix=/usr \
+	--disable-alsaconf \
+	--disable-maintainer-mode \
+	--sbindir=/usr/bin \
+	--with-udev-rules-dir=/usr/lib/udev/rules.d \
+	--with-systemdsystemunitdir=/usr/lib/systemd/system \
+	--disable-bat \
+	--disable-alsaloop \
+	--disable-alsamixer \
+	--disable-xmlto
+	make
+}
+
+check() {
+	make -k check -C $pkgname-$pkgver
+}
+
+package() {
+	depends+=(libasound.so)
+	make DESTDIR="$pkgdir" install -C $pkgname-$pkgver
+	install -vDm 644 $pkgname-$pkgver/README.md -t "$pkgdir/usr/share/doc/$pkgname/"
+	# dir where to save ALSA state
+	install -vdm 755 "$pkgdir/var/lib/alsa/"
+}

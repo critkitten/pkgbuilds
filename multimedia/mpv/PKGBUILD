@@ -1,0 +1,61 @@
+pkgname=mpv
+epoch=1
+_tag='33f10b1aee5fef45960728fe8595d1603c8a9a85' # git rev-parse v${pkgver}
+pkgver=0.35.0
+pkgrel=3
+pkgdesc='a free, open source, and cross-platform media player'
+arch=('x86_64')
+# We link against libraries that are licensed GPLv3 explicitly, so our
+# package is GPLv3 only as well. (Is this still correct?)
+license=('GPL3')
+url='https://mpv.io/'
+depends=('alsa-lib' 'libasound.so' 'ffmpeg' 'libavcodec.so' 'libavdevice.so' 'libass'
+	'libavfilter.so' 'libavformat.so' 'libavutil.so' 'libswresample.so' 'libswscale.so'
+	'glibc' 'lcms2' 'liblcms2.so' 'libdrm' 'libegl' 'libgl' 'libglvnd'  'libjpeg' 
+	'libjpeg.so' 'libva' 'libva.so' 'libva-drm.so' 'libva-wayland.so' 
+	'libvdpau' 'luajit' 'mesa' 'shaderc' 'vulkan-icd-loader' 'wayland' 'uchardet' 'libplacebo' 'zimg')
+makedepends=('git' 'python-docutils' 'wayland-protocols' 'vulkan-headers' 'waf' 'libass' 'libxkbcommon' 'libxkbcommon.so')
+provides=('libmpv.so')
+options=('!emptydirs' 'debug')
+validpgpkeys=('145077D82501AA20152CACCE8D769208D5E31419') # sfan5 <sfan5@live.de>
+source=("git+https://github.com/mpv-player/mpv.git#tag=${_tag}?signed")
+sha256sums=('SKIP')
+build() {
+  cd ${pkgname}
+
+  waf configure --prefix=/usr \
+    --confdir=/etc/mpv \
+    --disable-cdda \
+    --disable-dvb \
+    --disable-dvdnav \
+    --disable-libarchive \
+    --enable-libmpv-shared \
+    --disable-build-date \
+    --disable-caca \
+    --disable-jack \
+    --disable-pulse \
+    --disable-opensles \
+    --disable-coreaudio \
+    --disable-wasapi \
+    --disable-pipewire \
+    --disable-oss-audio \
+    --disable-sdl2-audio \
+    --disable-sdl2-gamepad \
+    --disable-javascript \
+    --enable-lua \
+    --lua=luajit
+
+  waf build
+}
+
+package() {
+  cd ${pkgname}
+
+  waf install --destdir="$pkgdir"
+
+  install -m0644 DOCS/{encoding.rst,tech-overview.txt} \
+    "$pkgdir"/usr/share/doc/mpv
+
+  install -m0644 TOOLS/lua/* \
+    -D -t "$pkgdir"/usr/share/mpv/scripts
+}
