@@ -26,7 +26,7 @@ build() {
 	-D werror=true \
 	-D b_ndebug=false \
 	-D gdk-pixbuf=enabled \
-	-D tray=disabled \
+	-D tray=enabled \
 	-D man-pages=disabled \
 	-D xwayland=disabled \
 	-D swaybar=true \
