@@ -1,0 +1,43 @@
+_name=myMPD
+pkgname=mympd
+pkgver=10.2.3
+pkgrel=1
+pkgdesc="A standalone and lightweight web-based MPD client"
+arch=(x86_64)
+url="https://github.com/jcorporation/myMPD"
+license=(GPL3)
+depends=(glibc lua)
+makedepends=(cmake flac jq libid3tag openssl pcre2 perl)
+source=(https://github.com/jcorporation/$pkgname/archive/v$pkgver/$pkgname-v$pkgver.tar.gz)
+sha512sums=('951a776a7f00f2e194fd8e294a4878607c590f9314b5b38b3a9158442a480acc9b0cd53ab183fe15030707f4f6e8189503b2e6d0da14841139b8dab3c1364404')
+b2sums=('8f24b013cfaf5ac61c874b014907da3a9434059069c9b8a75a2b97a5c34ea1d8d409c17b917a23e042d2148134dd9545c194ef2e987dbcde30b383c6823bb1c9')
+
+build() {
+  local cmake_options=(
+    -B build
+    -DCMAKE_BUILD_TYPE=None
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DENABLE_FLAC=ON
+    -S $_name-$pkgver
+    -Wno-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+check() {
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  depends+=(
+    flac libFLAC.so
+    libid3tag libid3tag.so
+    openssl libssl.so
+    pcre2 libpcre2-8.so
+  )
+
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $_name-$pkgver/{CHANGELOG,README}.md -t "$pkgdir/usr/share/doc/$pkgname/"
+}
