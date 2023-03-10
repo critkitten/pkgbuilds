@@ -1,5 +1,5 @@
 pkgbase=linux
-pkgver=6.1.15
+pkgver=6.1.16
 _branch=6.x
 pkgrel=9
 pkgdesc='Linux lts AM4 with Vega Graphic'
@@ -20,7 +20,7 @@ validpgpkeys=(
 	'ABAF11C65A2970B130ABE3C479BE3E4300411886' # Linux Torvalds
 	'647F28654894E3BD457199BE38DBBDC86092693E' # Greg Kroah-Hartman
 )
-sha256sums=('2c16dfe2168a2e64ac0d55a12d625ebfb963818bb48b60c1868c7c460644c4fd'
+sha256sums=('a6849c55580b5515a07b6ad21861c450fa20345c66624eecb89e8873816da3c5'
             'SKIP'
             'b919b2ea5fb9f02aab2ddd179549525047e57ec6155d9cf2c4815a3957ad2452'
             'bdc360f1eb76f87b66c4eed279c93bd04f151ea63fa7b116ad5c35c12e673653'
